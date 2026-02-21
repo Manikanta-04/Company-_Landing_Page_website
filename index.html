@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexaCore — Future Technology Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #05050f;
+    --surface: #0c0c1e;
+    --card: #111128;
+    --accent: #00f5c4;
+    --accent2: #7c3aed;
+    --accent3: #f97316;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --border: rgba(255,255,255,0.07);
+    --glow: 0 0 40px rgba(0,245,196,0.25);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom Cursor */
+  #cursor {
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+    mix-blend-mode: exclusion;
+  }
+  #cursor-ring {
+    width: 40px; height: 40px;
+    border: 1.5px solid rgba(0,245,196,0.5);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.15s ease, width 0.3s, height 0.3s, opacity 0.3s;
+  }
+  body:hover #cursor-ring { opacity: 1; }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    padding: 20px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(20px);
+    background: rgba(5,5,15,0.7);
+    border-bottom: 1px solid var(--border);
+    transition: padding 0.3s;
+  }
+  nav.scrolled { padding: 14px 60px; }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.5rem;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta {
+    padding: 10px 24px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .nav-cta:hover {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: var(--glow);
+  }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 120px 60px 60px;
+  }
+
+  /* 3D Grid background */
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,196,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,196,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    transform: perspective(800px) rotateX(55deg) scale(2.5);
+    transform-origin: center 70%;
+    animation: gridMove 20s linear infinite;
+    opacity: 0.6;
+  }
+  @keyframes gridMove {
+    from { background-position: 0 0; }
+    to { background-position: 0 60px; }
+  }
+
+  /* Floating orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: float 8s ease-in-out infinite;
+  }
+  .orb1 { width: 500px; height: 500px; background: rgba(124,58,237,0.2); top: -100px; right: -100px; animation-delay: 0s; }
+  .orb2 { width: 350px; height: 350px; background: rgba(0,245,196,0.15); bottom: 0; left: -50px; animation-delay: -3s; }
+  .orb3 { width: 250px; height: 250px; background: rgba(249,115,22,0.1); top: 50%; left: 50%; animation-delay: -5s; }
+  @keyframes float {
+    0%,100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-30px) scale(1.05); }
+  }
+
+  /* 3D rotating cube */
+  .cube-wrapper {
+    position: absolute;
+    right: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 220px; height: 220px;
+    perspective: 600px;
+  }
+  .cube {
+    width: 100%; height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: rotateCube 14s linear infinite;
+  }
+  @keyframes rotateCube {
+    from { transform: rotateX(20deg) rotateY(0deg); }
+    to { transform: rotateX(20deg) rotateY(360deg); }
+  }
+  .face {
+    position: absolute; width: 100%; height: 100%;
+    border: 1px solid rgba(0,245,196,0.3);
+    background: rgba(0,245,196,0.03);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .face::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,245,196,0.08), transparent);
+  }
+  .face.front  { transform: translateZ(110px); }
+  .face.back   { transform: rotateY(180deg) translateZ(110px); }
+  .face.left   { transform: rotateY(-90deg) translateZ(110px); }
+  .face.right  { transform: rotateY(90deg) translateZ(110px); }
+  .face.top    { transform: rotateX(90deg) translateZ(110px); }
+  .face.bottom { transform: rotateX(-90deg) translateZ(110px); }
+  .face-icon { font-size: 2.5rem; opacity: 0.6; }
+
+  /* Floating particles */
+  .particles-container {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: particleFloat linear infinite;
+    opacity: 0;
+  }
+  @keyframes particleFloat {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translateY(-100px) translateX(80px); opacity: 0; }
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 680px;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 18px;
+    border: 1px solid rgba(0,245,196,0.3);
+    border-radius: 2px;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    background: rgba(0,245,196,0.05);
+    animation: fadeSlideUp 0.8s ease both;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+    animation: fadeSlideUp 0.8s 0.15s ease both;
+  }
+  h1 .line { display: block; }
+  h1 .accent-text {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--accent);
+  }
+  h1 .gradient-text {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-desc {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--muted);
+    margin-bottom: 44px;
+    max-width: 520px;
+    animation: fadeSlideUp 0.8s 0.3s ease both;
+  }
+
+  .hero-btns {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    animation: fadeSlideUp 0.8s 0.45s ease both;
+  }
+  .btn-primary {
+    padding: 16px 36px;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: none;
+    cursor: none;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.2s;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+  .btn-primary:hover { box-shadow: var(--glow); transform: translateY(-2px); }
+  .btn-primary:hover::after { transform: translateX(100%); }
+
+  .btn-secondary {
+    padding: 16px 36px;
+    background: transparent;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    cursor: none;
+    transition: border-color 0.3s, transform 0.2s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
+  .btn-secondary .arrow { transition: transform 0.3s; }
+  .btn-secondary:hover .arrow { transform: translateX(5px); }
+
+  .hero-stats {
+    position: absolute;
+    bottom: 60px; left: 60px;
+    display: flex; gap: 50px;
+    z-index: 2;
+    animation: fadeSlideUp 0.8s 0.6s ease both;
+  }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION COMMON */
+  section { padding: 120px 60px; }
+  .section-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-left: 20px;
+    position: relative;
+  }
+  .section-tag::before {
+    content: '';
+    position: absolute; left: 0; top: 50%;
+    width: 12px; height: 1px;
+    background: var(--accent);
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .section-sub { color: var(--muted); line-height: 1.8; max-width: 500px; }
+
+  /* SERVICES */
+  #services { background: var(--surface); position: relative; overflow: hidden; }
+  #services::before {
+    content: '';
+    position: absolute; top: -1px; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 70px;
+    background: var(--border);
+  }
+  .service-card {
+    background: var(--card);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s ease;
+    cursor: none;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,245,196,0.05), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .service-card:hover { transform: translateY(-4px); }
+  .service-card:hover::before { opacity: 1; }
+  .service-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--accent);
+    transition: width 0.5s ease;
+  }
+  .service-card:hover::after { width: 100%; }
+
+  .service-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 30px;
+    opacity: 0.7;
+  }
+  .service-icon {
+    font-size: 2.8rem;
+    margin-bottom: 24px;
+    display: block;
+  }
+  .service-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: -0.01em;
+  }
+  .service-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.75; }
+  .service-arrow {
+    position: absolute; bottom: 32px; right: 32px;
+    color: var(--muted);
+    font-size: 1.2rem;
+    transition: color 0.3s, transform 0.3s;
+  }
+  .service-card:hover .service-arrow { color: var(--accent); transform: translate(4px, -4px); }
+
+  /* 3D FEATURE SECTION */
+  #feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .feature-visual {
+    position: relative; height: 500px;
+    perspective: 1000px;
+  }
+  .feature-card-3d {
+    position: absolute;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+  }
+  .feature-card-3d:hover {
+    transform: perspective(1000px) rotateY(-15deg) rotateX(5deg) scale(1.05) !important;
+    box-shadow: 30px 30px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,245,196,0.1);
+  }
+  .fc1 { width: 280px; top: 40px; left: 20px; transform: perspective(1000px) rotateY(-8deg) rotateX(4deg); z-index: 3; }
+  .fc2 { width: 240px; top: 160px; left: 180px; transform: perspective(1000px) rotateY(5deg) rotateX(-3deg); z-index: 2; background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.3); }
+  .fc3 { width: 200px; bottom: 40px; left: 60px; transform: perspective(1000px) rotateY(-12deg) rotateX(8deg); z-index: 1; }
+
+  .fc-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+  .fc-value { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text); }
+  .fc-value.green { color: var(--accent); }
+  .fc-value.purple { color: #a78bfa; }
+  .fc-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 14px; overflow: hidden; }
+  .fc-bar-fill { height: 100%; border-radius: 2px; animation: barGrow 2s ease both; }
+  .bar-green { background: linear-gradient(90deg, var(--accent), rgba(0,245,196,0.4)); width: 78%; animation-delay: 0.5s; }
+  .bar-purple { background: linear-gradient(90deg, #7c3aed, rgba(124,58,237,0.4)); width: 62%; animation-delay: 0.7s; }
+  .bar-orange { background: linear-gradient(90deg, var(--accent3), rgba(249,115,22,0.4)); width: 45%; animation-delay: 0.9s; }
+  @keyframes barGrow { from { width: 0; } }
+
+  .floating-badge {
+    position: absolute;
+    right: 0; top: 30%;
+    background: linear-gradient(135deg, var(--accent), #00c9a0);
+    color: var(--bg);
+    padding: 14px 20px;
+    font-size: 0.8rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%);
+    animation: float 5s ease-in-out infinite;
+    z-index: 4;
+  }
+
+  .feature-list { list-style: none; margin-top: 36px; }
+  .feature-list li {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    transition: color 0.3s;
+  }
+  .feature-list li:hover { color: var(--text); }
+  .feature-list li::before {
+    content: '→';
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* PROCESS */
+  #process { background: var(--surface); }
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin-top: 70px;
+    position: relative;
+  }
+  .process-steps::before {
+    content: '';
+    position: absolute; top: 32px; left: 10%;
+    width: 80%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+  }
+  .process-step {
+    padding: 30px;
+    text-align: center;
+    position: relative;
+  }
+  .step-num {
+    width: 64px; height: 64px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    margin: 0 auto 28px;
+    background: var(--bg);
+    position: relative; z-index: 1;
+    transition: background 0.4s, color 0.4s, box-shadow 0.4s;
+  }
+  .process-step:hover .step-num {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: var(--glow);
+  }
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .step-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+
+  /* TESTIMONIALS */
+  #testimonials { overflow: hidden; }
+  .testimonials-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 60px;
+  }
+  .testimonials-track-wrapper { overflow: hidden; }
+  .testimonials-track {
+    display: flex; gap: 24px;
+    animation: scrollTrack 30s linear infinite;
+    width: max-content;
+  }
+  @keyframes scrollTrack {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .testimonials-track:hover { animation-play-state: paused; }
+  .tcard {
+    min-width: 360px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 36px;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  .tcard::before {
+    content: '"';
+    position: absolute; top: 20px; right: 28px;
+    font-size: 5rem;
+    font-family: 'Syne', sans-serif;
+    color: rgba(0,245,196,0.1);
+    line-height: 1;
+  }
+  .tcard:hover { border-color: rgba(0,245,196,0.3); }
+  .tcard-text { font-size: 0.95rem; line-height: 1.8; color: var(--muted); margin-bottom: 28px; }
+  .tcard-author { display: flex; align-items: center; gap: 14px; }
+  .author-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1rem;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: white;
+  }
+  .author-name { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; }
+  .author-role { font-size: 0.78rem; color: var(--muted); }
+  .stars { color: var(--accent); font-size: 0.8rem; margin-bottom: 16px; }
+
+  /* CTA */
+  #cta {
+    background: var(--surface);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,245,196,0.08), transparent);
+  }
+  .cta-box {
+    max-width: 760px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .cta-box h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+  .cta-box p { color: var(--muted); margin-bottom: 48px; font-size: 1.05rem; line-height: 1.8; }
+  .cta-form { display: flex; gap: 0; max-width: 480px; margin: 0 auto; }
+  .cta-form input {
+    flex: 1;
+    padding: 16px 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-right: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s;
+    cursor: none;
+  }
+  .cta-form input:focus { border-color: var(--accent); }
+  .cta-form input::placeholder { color: var(--muted); }
+  .cta-form button {
+    padding: 16px 28px;
+    background: var(--accent);
+    border: none;
+    color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: box-shadow 0.3s;
+    white-space: nowrap;
+  }
+  .cta-form button:hover { box-shadow: var(--glow); }
+
+  /* FOOTER */
+  footer {
+    padding: 60px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; }
+  .footer-logo span { color: var(--accent); }
+  .footer-links { display: flex; gap: 32px; }
+  .footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--text); }
+  .footer-copy { font-size: 0.8rem; color: var(--muted); }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    nav { padding: 20px 30px; }
+    section { padding: 80px 30px; }
+    #hero { padding: 120px 30px 80px; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    #feature { grid-template-columns: 1fr; }
+    .feature-visual { display: none; }
+    .process-steps { grid-template-columns: 1fr 1fr; }
+    .hero-stats { left: 30px; bottom: 40px; gap: 30px; }
+    footer { flex-direction: column; gap: 24px; text-align: center; }
+    .cube-wrapper { display: none; }
+  }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    h1 { font-size: 2.5rem; }
+    .services-grid { grid-template-columns: 1fr; }
+    .process-steps { grid-template-columns: 1fr; }
+    .process-steps::before { display: none; }
+    .hero-stats { position: static; margin-top: 60px; }
+    .testimonials-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .cta-form { flex-direction: column; }
+    .cta-form input { border-right: 1px solid var(--border); border-bottom: none; }
+    footer { padding: 40px 24px; }
+    .footer-links { flex-wrap: wrap; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="logo">Nexa<span>Core</span></div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#feature">About</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#testimonials">Clients</a></li>
+  </ul>
+  <button class="nav-cta">Get Started</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="grid-bg"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="particles-container" id="particles"></div>
+
+  <div class="cube-wrapper">
+    <div class="cube">
+      <div class="face front"><span class="face-icon">⬡</span></div>
+      <div class="face back"><span class="face-icon">◈</span></div>
+      <div class="face left"><span class="face-icon">◉</span></div>
+      <div class="face right"><span class="face-icon">⬡</span></div>
+      <div class="face top"><span class="face-icon">◈</span></div>
+      <div class="face bottom"><span class="face-icon">◉</span></div>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">⚡ Next-Gen Digital Infrastructure</div>
+    <h1>
+      <span class="line">Building the</span>
+      <span class="line gradient-text">Future of Tech</span>
+      <span class="line accent-text">at Scale.</span>
+    </h1>
+    <p class="hero-desc">
+      NexaCore engineers cutting-edge digital solutions that transform businesses—
+      from AI-driven platforms to enterprise cloud architectures.
+    </p>
+    <div class="hero-btns">
+      <button class="btn-primary">Explore Solutions</button>
+      <button class="btn-secondary">Watch Demo <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num" data-target="240">0<span>+</span></span>
+      <span class="stat-label">Projects Delivered</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-target="98">0<span>%</span></span>
+      <span class="stat-label">Client Satisfaction</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-target="12">0<span>+</span></span>
+      <span class="stat-label">Years of Excellence</span>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-tag">What We Do</div>
+  <h2 class="section-title reveal">Services Built<br>for Tomorrow</h2>
+  <p class="section-sub reveal">We deliver end-to-end digital solutions across the entire technology spectrum, tailored for ambitious companies.</p>
+  <div class="services-grid reveal">
+    <div class="service-card">
+      <div class="service-num">01</div>
+      <span class="service-icon">🧠</span>
+      <h3 class="service-title">AI & Machine Learning</h3>
+      <p class="service-desc">Bespoke AI models, neural architectures, and intelligent automation pipelines that give your business a decisive edge.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-card">
+      <div class="service-num">02</div>
+      <span class="service-icon">☁️</span>
+      <h3 class="service-title">Cloud Architecture</h3>
+      <p class="service-desc">Scalable, resilient cloud infrastructures on AWS, GCP, and Azure—designed for enterprise-grade performance and security.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-card">
+      <div class="service-num">03</div>
+      <span class="service-icon">⚡</span>
+      <h3 class="service-title">Product Engineering</h3>
+      <p class="service-desc">Full-stack development with modern frameworks—React, Next.js, Node, and more. From MVP to production at speed.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-card">
+      <div class="service-num">04</div>
+      <span class="service-icon">🔐</span>
+      <h3 class="service-title">Cybersecurity</h3>
+      <p class="service-desc">Comprehensive security audits, zero-trust implementations, and real-time threat intelligence for enterprise protection.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-card">
+      <div class="service-num">05</div>
+      <span class="service-icon">📊</span>
+      <h3 class="service-title">Data & Analytics</h3>
+      <p class="service-desc">Transform raw data into actionable insights with our BI platforms, real-time dashboards, and predictive analytics solutions.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-card">
+      <div class="service-num">06</div>
+      <span class="service-icon">⛓️</span>
+      <h3 class="service-title">Blockchain Solutions</h3>
+      <p class="service-desc">Smart contracts, DeFi protocols, and Web3 integrations—building decentralized applications that redefine trust.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE -->
+<section id="feature">
+  <div>
+    <div class="section-tag">Why NexaCore</div>
+    <h2 class="section-title reveal">Performance That<br>Speaks Numbers</h2>
+    <p class="section-sub reveal">Our solutions consistently outperform benchmarks, delivering measurable ROI and operational excellence.</p>
+    <ul class="feature-list reveal">
+      <li>Reduce infrastructure costs by up to 40% through intelligent cloud optimization and auto-scaling architectures.</li>
+      <li>Cut time-to-market in half with our agile delivery framework and reusable component libraries.</li>
+      <li>Achieve 99.99% uptime SLAs backed by 24/7 monitoring and automated failover systems.</li>
+      <li>Leverage AI insights to drive 3× faster decision-making across your entire organization.</li>
+    </ul>
+  </div>
+  <div class="feature-visual reveal">
+    <div class="feature-card-3d fc1">
+      <div class="fc-label">Revenue Growth</div>
+      <div class="fc-value green">+127%</div>
+      <div class="fc-bar"><div class="fc-bar-fill bar-green"></div></div>
+    </div>
+    <div class="feature-card-3d fc2">
+      <div class="fc-label">Performance Score</div>
+      <div class="fc-value purple">98/100</div>
+      <div class="fc-bar"><div class="fc-bar-fill bar-purple"></div></div>
+    </div>
+    <div class="feature-card-3d fc3">
+      <div class="fc-label">System Uptime</div>
+      <div class="fc-value">99.99%</div>
+      <div class="fc-bar"><div class="fc-bar-fill bar-orange"></div></div>
+    </div>
+    <div class="floating-badge">↑ 40% Cost Saving</div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-tag">How We Work</div>
+  <h2 class="section-title reveal">From Vision<br>to Reality</h2>
+  <div class="process-steps reveal">
+    <div class="process-step">
+      <div class="step-num">01</div>
+      <h4 class="step-title">Discovery</h4>
+      <p class="step-desc">Deep-dive workshops to map your business goals, technical constraints, and competitive landscape.</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">02</div>
+      <h4 class="step-title">Architecture</h4>
+      <p class="step-desc">Design a scalable, future-proof system architecture aligned with your growth trajectory.</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">03</div>
+      <h4 class="step-title">Build & Iterate</h4>
+      <p class="step-desc">Agile sprints with continuous feedback loops—shipping value incrementally, never cutting corners.</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">04</div>
+      <h4 class="step-title">Launch & Scale</h4>
+      <p class="step-desc">Seamless deployment, performance monitoring, and ongoing optimization to keep you ahead.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="testimonials-header reveal">
+    <div>
+      <div class="section-tag">Clients</div>
+      <h2 class="section-title">Trusted by Industry<br>Leaders</h2>
+    </div>
+    <p style="color:var(--muted);max-width:320px;font-size:0.9rem;line-height:1.7">Hover to pause. Companies from 28 countries trust NexaCore to power their digital future.</p>
+  </div>
+  <div class="testimonials-track-wrapper">
+    <div class="testimonials-track" id="track">
+      <!-- duplicated for seamless loop -->
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-box reveal">
+    <div class="section-tag" style="display:block;text-align:center;padding-left:0;">
+      <span style="display:inline-block;padding-left:20px;position:relative;">Start Today
+        <span style="position:absolute;left:0;top:50%;width:12px;height:1px;background:var(--accent);"></span>
+      </span>
+    </div>
+    <h2>Ready to Build<br>Something Extraordinary?</h2>
+    <p>Join 240+ companies that have transformed their digital future with NexaCore. Let's start your journey.</p>
+    <div class="cta-form">
+      <input type="email" placeholder="Enter your work email">
+      <button>Get Started →</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Nexa<span>Core</span></div>
+  <div class="footer-links">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Careers</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="footer-copy">© 2025 NexaCore Technologies. All rights reserved.</div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+  }, 80);
+});
+document.querySelectorAll('a,button,.service-card,.feature-card-3d,.tcard').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+    ring.style.transform = 'translate(-50%,-50%) scale(1.5)';
+    ring.style.opacity = '0.5';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+    ring.style.transform = 'translate(-50%,-50%) scale(1)';
+    ring.style.opacity = '1';
+  });
+});
+
+// Navbar scroll
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Particles
+const pc = document.getElementById('particles');
+for(let i = 0; i < 40; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random() * 3 + 2;
+  p.style.cssText = `
+    left: ${Math.random()*100}%;
+    width: ${size}px; height: ${size}px;
+    animation-duration: ${Math.random()*12+8}s;
+    animation-delay: ${Math.random()*10}s;
+    opacity: 0;
+  `;
+  if(Math.random() > 0.6) p.style.background = '#7c3aed';
+  pc.appendChild(p);
+}
+
+// Counter animation
+function animateCount(el) {
+  const target = parseInt(el.dataset.target);
+  const suffix = el.querySelector('span').outerHTML;
+  let count = 0;
+  const step = target / 60;
+  const timer = setInterval(() => {
+    count = Math.min(count + step, target);
+    el.innerHTML = Math.floor(count) + suffix;
+    if(count >= target) clearInterval(timer);
+  }, 25);
+}
+const statNums = document.querySelectorAll('.stat-num[data-target]');
+const statObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { animateCount(e.target); statObserver.unobserve(e.target); } });
+}, { threshold: 0.5 });
+statNums.forEach(el => statObserver.observe(el));
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if(e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => revealObs.observe(el));
+
+// Testimonials
+const testimonials = [
+  { text: "NexaCore completely transformed our data infrastructure. We went from days to seconds in processing time. Absolutely world-class engineering team.", name: "Sarah Chen", role: "CTO, Luminary AI", initials: "SC" },
+  { text: "The level of expertise they brought to our cloud migration was unmatched. We saved 38% on infrastructure costs in the first quarter alone.", name: "Marcus Webb", role: "VP Engineering, Finova", initials: "MW" },
+  { text: "Not just a vendor—a true technology partner. Their AI solutions drove a 3× increase in our conversion rates within 60 days.", name: "Priya Sharma", role: "CEO, DataBridge", initials: "PS" },
+  { text: "Delivered our enterprise platform 3 weeks ahead of schedule with zero technical debt. Rare craftsmanship in the industry.", name: "James Liu", role: "Founder, Orbital Systems", initials: "JL" },
+  { text: "Their security team identified critical vulnerabilities no one else found. Their cybersecurity practice is absolutely best-in-class.", name: "Elena Novak", role: "CISO, GlobeTech", initials: "EN" },
+  { text: "The blockchain solution NexaCore built for us processes 10k+ transactions per second. Truly cutting-edge distributed architecture.", name: "Ahmed Hassan", role: "CTO, ChainVault", initials: "AH" },
+];
+const track = document.getElementById('track');
+const doubled = [...testimonials, ...testimonials];
+doubled.forEach(t => {
+  track.innerHTML += `
+    <div class="tcard">
+      <div class="stars">★★★★★</div>
+      <p class="tcard-text">${t.text}</p>
+      <div class="tcard-author">
+        <div class="author-avatar">${t.initials}</div>
+        <div>
+          <div class="author-name">${t.name}</div>
+          <div class="author-role">${t.role}</div>
+        </div>
+      </div>
+    </div>`;
+});
+
+// 3D card tilt on mouse move (feature section)
+document.querySelectorAll('.feature-card-3d').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    card.style.transform = `perspective(1000px) rotateY(${x*30}deg) rotateX(${-y*20}deg) scale(1.05)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+});
+
+// Smooth entrance for hero
+window.addEventListener('load', () => {
+  document.body.style.opacity = 1;
+});
+</script>
+</body>
+</html>
